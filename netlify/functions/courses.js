@@ -20,16 +20,16 @@
 //   BOTH the lecturer/course combination and the course as a whole.
 
 // === Domain model - fill in the blanks ===
-// There are 4 models: _____, _____, _____, _____
-// There is one many-to-many relationship: _____ <-> _____, which translates to two one-to-many relationships:
-// - One-to-many: _____ -> _____
-// - One-to-many: _____ -> _____
-// And one more one-to-many: _____ -> _____
+// There are 4 models: courses, lecturer, reviews, and section
+// There is one many-to-many relationship: course <-> lecturer, which translates to two one-to-many relationships:
+// - One-to-many: lecturer -> sections
+// - One-to-many: course -> sections
+// And one more one-to-many: section -> reviews
 // Therefore:
-// - The first model, _____, contains the following fields (not including ID): _____, _____ 
-// - The second model, _____, contains the following fields: _____
-// - The third model, _____, contains the following fields: _____, _____
-// - The fourth model, _____, contains the following fields, _____, _____, _____
+// - The first model, courses, contains the following fields (not including ID): course number, course name 
+// - The second model, lecturer, contains the following fields: lecturer name
+// - The third model, reviews, contains the following fields: comments, rating
+// - The fourth model, section, contains the following fields, course number, course name, lecturer
 
 // allows us to use firebase
 let firebase = require(`./firebase`)
@@ -38,18 +38,38 @@ let firebase = require(`./firebase`)
 exports.handler = async function(event) {
 
   // get the course number being requested
+  let courseNumber = event.queryStringParameters.courseNumber
 
   // establish a connection to firebase in memory
+  let db = firebase.firestore()
 
   // ask Firebase for the course that corresponds to the course number, wait for the response
+  let coursesQuery = await db.collection(`courses`).where(`courseNumber`, `==`, courseNumber).get()
 
   // get the first document from the query
-
+  let courses = coursesQuery.docs
+ 
   // get the id from the document
+  let courseId = courses[0].id 
 
   // get the data from the document
+  let courseData = courses[0].data()
+
+  let sectionsQuery = await db.collection(`sections`).where(`courseId`, `==`, courseId).get()
+  let sections = sectionsQuery.docslet sectionData = sections[0].data()
+  let sectionData = sections[0].data()
+
+  let lectQuery = await db.collection(`lecturers`).where(`id`, `==`, sectionData.lectID)
+  let lecturers = lectQuery.docs
+  let lecturerData = lecturers[0].data
 
   // set a new Array as part of the return value
+  let returnValue ={
+    id: courseId,
+    courseNumber: courseData.courseNum,
+    courseName: courseData.courseName   
+    lectName: [] 
+  }
 
   // ask Firebase for the sections corresponding to the Document ID of the course, wait for the response
 
